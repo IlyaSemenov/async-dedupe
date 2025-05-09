@@ -54,3 +54,29 @@ it("keeps original function name", () => {
   })
   expect(f.name).toEqual("boo")
 })
+
+it("passes multiple arguments", async () => {
+  const fetch = dedupe(async (_id: number, res: string) => {
+    await sleep(10)
+    return res
+  })
+  expect(
+    await Promise.all([fetch(1, "r1"), fetch(2, "r2"), fetch(1, "r3"), fetch(3, "r4"), fetch(2, "r5"), fetch(4, "r6")]),
+  ).toEqual(
+    ["r1", "r2", "r1", "r4", "r2", "r6"],
+  )
+})
+
+it("uses key callback", async () => {
+  const fetch = dedupe(async (id: number, _key: string) => {
+    await sleep(10)
+    return id
+  }, {
+    key: (_id, key) => key,
+  })
+  expect(
+    await Promise.all([fetch(1, "r1"), fetch(2, "r2"), fetch(3, "r1"), fetch(4, "r3"), fetch(5, "r2"), fetch(6, "r4")]),
+  ).toEqual(
+    [1, 2, 1, 4, 2, 6],
+  )
+})

@@ -44,3 +44,24 @@ await defineEventHandler(async (event) => {
   return await generateThumbnail(event.query.path)
 })
 ```
+
+### Handling Complex or Multiple Arguments
+
+By default, the function's first argument is used as the deduplication key. For more control, you can provide a custom key function:
+
+```ts
+const generateThumb = dedupe((
+  { source, width, height, target }: {
+    source: string
+    width: number
+    height: number
+    target: string
+  }) => {
+  return sharp(source)
+    .resize(width, height, { fit: "outside" })
+    .avif()
+    .toFile(target)
+}, {
+  key: ({ target }) => target // Deduplicate based on target path only
+})
+```

@@ -1,17 +1,20 @@
-export function dedupe<Fn extends (arg: any) => Promise<any>>(fn: Fn): Fn {
+export function dedupe<F extends (...args: any[]) => Promise<any>>(fn: F, options?: {
+  key?: (...args: Parameters<F>) => any
+}): F {
   const map = new Map()
-  const dedupedFn = (arg: unknown) => {
-    const p = map.get(arg)
+  const dedupedFn = (...args: Parameters<F>) => {
+    const key = options?.key?.(...args) ?? args[0]
+    const p = map.get(key)
     if (p) {
       return p
     } else {
-      const p = fn(arg).finally(() => {
-        map.delete(arg)
+      const p = fn(...args).finally(() => {
+        map.delete(key)
       })
-      map.set(arg, p)
+      map.set(key, p)
       return p
     }
   }
   Object.defineProperty(dedupedFn, "name", { writable: false, value: fn.name })
-  return dedupedFn as Fn
+  return dedupedFn as F
 }
