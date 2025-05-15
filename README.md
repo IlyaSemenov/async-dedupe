@@ -32,7 +32,7 @@ npm install async-dedupe
 import { dedupe } from "async-dedupe"
 
 const generateThumb = dedupe((imagePath: string) => {
-  return sharp(originalFilePath)
+  return sharp(imagePath)
     .resize(256, 256, { fit: "outside" })
     .avif()
     .toFile(imagePath + ".avif")
