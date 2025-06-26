@@ -1,5 +1,11 @@
 # async-dedupe
 
+## 1.2.0
+
+### Minor Changes
+
+- fbe622b: Add `peek()` and `settle()` methods to access and wait for pending operations.
+
 ## 1.1.0
 
 ### Minor Changes
