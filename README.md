@@ -15,7 +15,9 @@ Prevent parallel execution of the same async function with identical arguments.
 - **Completion**: Automatically removes the promise (no result caching).
 
 <details>
-<summary>Deepseek was hallucinating that this package already existed with this API. Since it didn't, I created it.</summary>
+<summary>
+<i>Deepseek hallucinated that this package already existed with this API. So I created it—and behold, it was good. Then I evolved it further.</i>
+</summary>
 
 ![Deepseek hallucination](deepseek.png)
 </details>
@@ -65,3 +67,30 @@ const generateThumb = dedupe((
   key: ({ target }) => target // Deduplicate based on target path only
 })
 ```
+
+### Waiting for Pending Operations
+
+The `settle()` method allows you to wait for a specific operation to complete based on its arguments. This is useful for graceful shutdown or when you need to ensure a particular operation has finished.
+
+```ts
+const createBrowser = dedupe(() => puppeteer.launch())
+
+// Handle Ctrl+C
+process.on("SIGINT", async () => {
+  // If there is a pending promise for these arguments, wait for it to settle
+  const result = await createBrowser.settle()
+
+  // If a promise was running and resolved successfully
+  if (result?.status === "fulfilled") {
+    await result.value.close()
+  }
+
+  process.exit(0)
+})
+```
+
+The `settle()` method:
+- Takes the same arguments as the original function.
+- Returns a `PromiseSettledResult` if a promise is currently running for those arguments.
+- Returns `undefined` if no promise is running for those arguments.
+- Doesn't create a new promise if none exists (unlike calling the function directly).
