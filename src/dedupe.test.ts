@@ -108,6 +108,54 @@ it("keeps original function name", () => {
   expect(f.name).toEqual("boo")
 })
 
+describe("peek method", () => {
+  it("returns undefined when no promise is running", () => {
+    const fetch = dedupe(async (id: number) => {
+      await sleep(50)
+      return id * 2
+    })
+
+    const result = fetch.peek(42)
+    expect(result).toBeUndefined()
+  })
+
+  it("returns the pending promise for running operations", async () => {
+    const fetch = dedupe(async (id: number) => {
+      await sleep(50)
+      return id * 2
+    })
+
+    // Start a promise
+    const promise = fetch(42)
+
+    // Peek should return the same promise
+    const peekedPromise = fetch.peek(42)
+    expect(peekedPromise).toBe(promise)
+
+    // The promise should resolve normally
+    expect(await promise).toBe(84)
+  })
+
+  it("works with key function", async () => {
+    const fetch = dedupe(async (id: number, label: string) => {
+      await sleep(50)
+      return `${label}-${id}`
+    }, {
+      key: (_id, label) => label,
+    })
+
+    // Start a promise with key "test"
+    const promise = fetch(1, "test")
+
+    // Should find the promise with the same key, even with different id
+    const peekedPromise = fetch.peek(999, "test")
+    expect(peekedPromise).toBe(promise)
+
+    // The promise should resolve normally
+    expect(await promise).toBe("test-1")
+  })
+})
+
 describe("settle method", () => {
   it("returns undefined when no promise is running", async () => {
     const fetch = dedupe(async (id: number) => {

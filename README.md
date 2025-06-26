@@ -68,9 +68,33 @@ const generateThumb = dedupe((
 })
 ```
 
+### Accessing Pending Operations
+
+The `peek()` method allows you to access a currently running promise for specific arguments without creating a new one.
+
+```ts
+const createBrowser = dedupe(() => puppeteer.launch())
+
+// Handle Ctrl+C
+process.on("SIGINT", async () => {
+  // Check if a browser is being created
+  await createBrowser.peek()?.then(
+    browser => browser.close(), // Close browser
+    () => {} // Ignore if browser failed to create
+  )
+  process.exit(0)
+})
+```
+
+The `peek()` method:
+- Takes the same arguments as the original function
+- Returns the pending promise if one exists for those arguments
+- Returns `undefined` if no promise is running
+- Doesn't create a new promise (unlike calling the function directly)
+
 ### Waiting for Pending Operations
 
-The `settle()` method allows you to wait for a specific operation to complete based on its arguments. This is useful for graceful shutdown or when you need to ensure a particular operation has finished.
+Alternatively, use `settle()` to wait for a pending operation and get its settled result (whether fulfilled or rejected).
 
 ```ts
 const createBrowser = dedupe(() => puppeteer.launch())
@@ -89,8 +113,4 @@ process.on("SIGINT", async () => {
 })
 ```
 
-The `settle()` method:
-- Takes the same arguments as the original function.
-- Returns a `PromiseSettledResult` if a promise is currently running for those arguments.
-- Returns `undefined` if no promise is running for those arguments.
-- Doesn't create a new promise if none exists (unlike calling the function directly).
+The `settle()` method resolves to a `PromiseSettledResult` if a promise was running, or `undefined` if no promise existed.

@@ -2,4 +2,4 @@
 "async-dedupe": minor
 ---
 
-Add `settle()` method to wait for pending operations with specific arguments.
+Add `peek()` and `settle()` methods to access and wait for pending operations.

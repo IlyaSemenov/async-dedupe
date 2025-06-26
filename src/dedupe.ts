@@ -2,6 +2,7 @@ type AsyncFunction = (...args: any[]) => Promise<any>
 
 export interface DedupedFunction<F extends AsyncFunction> {
   (...args: Parameters<F>): ReturnType<F>
+  peek(...args: Parameters<F>): ReturnType<F> | undefined
   settle(...args: Parameters<F>): Promise<PromiseSettledResult<Awaited<ReturnType<F>>> | undefined>
 }
 
@@ -26,6 +27,15 @@ export function dedupe<F extends AsyncFunction>(fn: F, options?: {
       return p
     }
   }
+
+  // Add peek method
+  Object.defineProperty(dedupedFn, "peek", {
+    value: (...args: Parameters<F>) => {
+      const key = getKey(...args)
+      return map.get(key)
+    },
+    enumerable: true,
+  })
 
   // Add settle method
   Object.defineProperty(dedupedFn, "settle", {
