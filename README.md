@@ -115,3 +115,8 @@ process.on("SIGINT", async () => {
 ```
 
 The `settle()` method resolves to a `PromiseSettledResult` if a promise was running, or `undefined` if no promise existed.
+
+## See Also
+
+This library is essentially equivalent to `pMemoize(fn, { cache: false })`.
+If you need result caching or more advanced memoization, consider [p-memoize](https://github.com/sindresorhus/p-memoize).
