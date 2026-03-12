@@ -2,17 +2,17 @@
 
 Prevent parallel execution of the same async function with identical arguments.
 
-### Key Features
+## Key Features
 
-- **Automatic Deduplication**: Concurrent calls with identical arguments share a single promise.
-- **Zero Caching**: Cleans up immediately after completion (no memory leaks).
-- **TypeScript Ready**: Full type inference for arguments and return values.
+- **Automatic deduplication**: concurrent calls with identical arguments share a single promise.
+- **Zero caching**: cleans up immediately after completion (no memory leaks).
+- **TypeScript ready**: full type inference for arguments and return values.
 
-### How It Works
+## How It Works
 
-- **First Call**: Executes the function and stores the promise.
-- **Parallel Duplicates**: Reuses the same promise while the original call is in progress.
-- **Completion**: Automatically removes the promise (no result caching).
+1. **First call** executes the function and stores the promise.
+2. **Parallel duplicates** reuse the same promise while the original call is in flight.
+3. On **completion**, the promise is automatically removed (no result caching).
 
 <details>
 <summary>
@@ -28,7 +28,7 @@ Prevent parallel execution of the same async function with identical arguments.
 npm install async-dedupe
 ```
 
-## Use
+## Usage
 
 ```ts
 import { dedupe } from "async-dedupe"
@@ -41,13 +41,13 @@ const generateThumb = dedupe((imagePath: string) => {
 })
 
 // Example: Nuxt.js endpoint.
-await defineEventHandler(async (event) => {
-  // Concurrent requests with the same path will reuse the in-progress operation.
-  return await generateThumbnail(event.query.path)
+// Concurrent requests with the same path will reuse the in-flight operation.
+defineEventHandler(async (event) => {
+  return await generateThumb(event.query.path)
 })
 ```
 
-### Handling Complex or Multiple Arguments
+## Handling Complex or Multiple Arguments
 
 By default, the function's first argument is used as the deduplication key. For more control, you can provide a custom key function:
 
@@ -68,7 +68,7 @@ const generateThumb = dedupe((
 })
 ```
 
-### Accessing Pending Operations
+## Accessing Pending Operations
 
 The `peek()` method allows you to access a currently running promise for specific arguments without creating a new one.
 
@@ -87,12 +87,13 @@ process.on("SIGINT", async () => {
 ```
 
 The `peek()` method:
+
 - Takes the same arguments as the original function
 - Returns the pending promise if one exists for those arguments
 - Returns `undefined` if no promise is running
 - Doesn't create a new promise (unlike calling the function directly)
 
-### Waiting for Pending Operations
+## Waiting for Pending Operations
 
 Alternatively, use `settle()` to wait for a pending operation and get its settled result (whether fulfilled or rejected).
 
