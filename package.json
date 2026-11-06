@@ -3,7 +3,7 @@
   "type": "module",
   "version": "1.2.0",
   "packageManager": "pnpm@9.14.2",
-  "description": "",
+  "description": "Deduplicate concurrent calls to an async function.",
   "author": "Ilya Semenov",
   "license": "MIT",
   "repository": {
